@@ -1,0 +1,22 @@
+A simple, single day example
+Honestly, this should probably be #1
+
+Typing this while watching No Remorse
+
+(It's pretty good)
+
+
+Thursday
+--------
+ 9:00 -  9:30 Admin
+ 9:30 - 10:00 WIP
+10:00 - 11:30 Building out home page template #Client
+11:30 - 12:15 Scoping, discussing new brief #23456
+
+12:45 - 13:00 Fixing renewal issue
+13:00 - 13:30 Responding to request about hiding particular section of site on specific product page, w/ John #CIA
+13:30 - 16:00 Most of the afternoon fixing up responsive handling of dashboard #Framework
+16:00 - 16:45 Debugging an urgent issue found during file upload #TC
+16:45 - 17:00 Teams call with the boss
+
+
