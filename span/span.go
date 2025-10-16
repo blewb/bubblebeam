@@ -21,6 +21,12 @@ var weekdays = map[string]int{
 	`saturday`:  6,
 }
 
+func NewSpan() Span {
+	return Span{
+		Days: make([]Day, 0),
+	}
+}
+
 func (sp *Span) Read(useSample int) error {
 
 	filepath := getFilePath(useSample)

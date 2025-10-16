@@ -3,31 +3,19 @@ package main
 import "fmt"
 
 func (m model) View() string {
-	// The header
-	s := "What should we buy at the market?\n\n"
 
-	// Iterate over our choices
-	for i, choice := range m.choices {
+	s := fmt.Sprintln("Bubblebeam")
+	s += "==========\n\n"
 
-		// Is the cursor pointing at this choice?
-		cursor := " " // no cursor
-		if m.cursor == i {
-			cursor = ">" // cursor!
+	for _, day := range m.data.Days {
+
+		s += fmt.Sprintln(day.Weekday.String())
+
+		for _, ent := range day.Entries {
+			s += fmt.Sprintln("\t", ent)
 		}
 
-		// Is this choice selected?
-		checked := " " // not selected
-		if _, ok := m.selected[i]; ok {
-			checked = "x" // selected!
-		}
-
-		// Render the row
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
 	}
 
-	// The footer
-	s += "\nPress q to quit.\n"
-
-	// Send the UI for rendering
 	return s
 }
