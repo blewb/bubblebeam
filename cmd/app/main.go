@@ -27,7 +27,7 @@ func main() {
 	sp := span.NewSpan()
 	sp.Read(flagSample)
 
-	p := tea.NewProgram(initialModel(sp))
+	p := tea.NewProgram(initialModel(sp), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
