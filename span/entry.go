@@ -9,6 +9,10 @@ type Timestamp struct {
 	Hour, Minute int
 }
 
+func (t Timestamp) Render() string {
+	return fmt.Sprintf("%d:%02d", t.Hour, t.Minute)
+}
+
 type Entry struct {
 	Warnings    []string  `json:"warnings"`
 	Description string    `json:"description"`
@@ -80,6 +84,11 @@ func (e Entry) RefName() string {
 
 func (t Timestamp) GetSlot() int {
 	return t.Hour*4 + t.Minute/15
+}
+
+func (e Entry) DurationString() string {
+	f := float32(e.Duration) / 60.0
+	return fmt.Sprintf("%.3gh", f)
 }
 
 func (e Entry) Render() {

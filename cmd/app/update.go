@@ -3,6 +3,9 @@ package main
 import tea "github.com/charmbracelet/bubbletea"
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
@@ -24,6 +27,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 	}
-
-	return m, nil
+	m.table, cmd = m.table.Update(msg)
+	return m, cmd
 }
