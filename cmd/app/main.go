@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 
 	if flagSample <= 0 {
-		flagSample = 3 // Development default
+		flagSample = 1 // Development default
 		// log.Fatalf("invalid sample: %d", flagSample)
 	}
 

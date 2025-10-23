@@ -13,11 +13,19 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
+type modelState int
+
+const (
+	StateStart modelState = iota
+	StateList
+	StateConfirm
+)
+
 type model struct {
-	data   span.Span
-	day    int
-	cursor int
-	table  table.Model
+	data  span.Span
+	day   int
+	state modelState
+	table table.Model
 }
 
 func initialModel(sp span.Span) model {
@@ -65,10 +73,10 @@ func initialModel(sp span.Span) model {
 	t.SetStyles(s)
 
 	return model{
-		data:   sp,
-		day:    0,
-		cursor: 0,
-		table:  t,
+		data:  sp,
+		day:   0,
+		state: StateList,
+		table: t,
 	}
 }
 
