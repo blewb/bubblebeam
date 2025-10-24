@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/blewb/bubblebeam/span"
+	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -22,10 +23,11 @@ const (
 )
 
 type model struct {
-	data  span.Span
-	day   int
-	state modelState
-	table table.Model
+	data      span.Span
+	day       int
+	state     modelState
+	table     table.Model
+	paginator paginator.Model
 }
 
 func initialModel(sp span.Span) model {
@@ -72,11 +74,19 @@ func initialModel(sp span.Span) model {
 		Bold(false)
 	t.SetStyles(s)
 
+	p := paginator.New()
+	p.Type = paginator.Dots
+	p.PerPage = 1
+	p.ActiveDot = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "252"}).Render("•")
+	p.InactiveDot = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "238"}).Render("•")
+	p.SetTotalPages(len(sp.Days))
+
 	return model{
-		data:  sp,
-		day:   0,
-		state: StateList,
-		table: t,
+		data:      sp,
+		day:       0,
+		state:     StateList,
+		table:     t,
+		paginator: p,
 	}
 }
 

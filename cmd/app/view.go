@@ -2,6 +2,11 @@ package main
 
 import "fmt"
 
+const (
+	arrowLeft  = '‹'
+	arrowRight = '›'
+)
+
 func (m model) View() string {
 
 	switch m.state {
@@ -23,21 +28,15 @@ func (m model) ViewStart() string {
 
 func (m model) ViewList() string {
 
-	s := "# BUBBLEBEAM\n############\n\n"
+	s := appTitle + "\n\n"
 
 	n := len(m.data.Days)
 	singleDay := n == 1
 
-	s += fmt.Sprintf("%c %s %c\n", '<', m.data.Days[m.day].Weekday.String(), '>')
+	s += fmt.Sprintf("%c %s %c\n", arrowLeft, m.data.Days[m.day].Weekday.String(), arrowRight)
 
 	if !singleDay {
-		for d := 0; d < n; d++ {
-			if d == m.day {
-				s += "X "
-			} else {
-				s += "o "
-			}
-		}
+		s += m.paginator.View()
 		s += "\n"
 	}
 

@@ -38,14 +38,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 	}
+
+	m.paginator.Page = m.day
 	m.table, cmd = m.table.Update(msg)
+
 	return m, cmd
 }
 
 // Doesn't work just yet
-func (m model) UpdateTable() {
+// Of course it doesn't if you pass a copy, dummy...
+func (m *model) UpdateTable() {
 
-	rows := make([]table.Row, 0, len(m.data.Days[m.day].Entries))
+	n := len(m.data.Days[m.day].Entries)
+	rows := make([]table.Row, 0, n)
 
 	for e, entry := range m.data.Days[m.day].Entries {
 		rows = append(rows, []string{
@@ -59,5 +64,7 @@ func (m model) UpdateTable() {
 	}
 
 	m.table.SetRows(rows)
+	m.table.SetHeight(n + 2)
+	m.table.SetCursor(0)
 
 }
