@@ -17,8 +17,10 @@ var baseStyle = lipgloss.NewStyle().
 type modelState int
 
 const (
-	StateStart modelState = iota
-	StateList
+	StateLoading modelState = iota
+	StateSelectDate
+	StateListEntries
+	StateSelectJob
 	StateConfirm
 )
 
@@ -30,7 +32,7 @@ type model struct {
 	paginator paginator.Model
 }
 
-func initialModel(sp span.Span) model {
+func initialModel(sp span.Span, launchState modelState) model {
 
 	columns := []table.Column{
 		{Title: "#", Width: 3},
@@ -70,7 +72,7 @@ func initialModel(sp span.Span) model {
 		Bold(false)
 	s.Selected = s.Selected.
 		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
+		Background(lipgloss.Color("#00aaff")).
 		Bold(false)
 	t.SetStyles(s)
 
@@ -84,7 +86,7 @@ func initialModel(sp span.Span) model {
 	return model{
 		data:      sp,
 		day:       0,
-		state:     StateList,
+		state:     launchState,
 		table:     t,
 		paginator: p,
 	}
