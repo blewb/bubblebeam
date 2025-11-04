@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/blewb/bubblebeam/span"
 	"github.com/charmbracelet/bubbles/paginator"
@@ -14,6 +15,13 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
+var cardStyle = baseStyle.
+	Padding(2).
+	Width(10)
+
+var selectedCardStyle = cardStyle.
+	Background(lipgloss.Color("#00aaff"))
+
 type modelState int
 
 const (
@@ -25,11 +33,14 @@ const (
 )
 
 type model struct {
-	data      span.Span
-	day       int
-	state     modelState
-	table     table.Model
-	paginator paginator.Model
+	data         span.Span
+	day          int
+	state        modelState
+	table        table.Model
+	paginator    paginator.Model
+	dates        []span.Datestamp
+	today        string
+	selectedDate int
 }
 
 func initialModel(sp span.Span, launchState modelState) model {
@@ -83,12 +94,19 @@ func initialModel(sp span.Span, launchState modelState) model {
 	p.InactiveDot = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "238"}).Render("•")
 	p.SetTotalPages(len(sp.Days))
 
+	now := time.Now()
+	dates, sd := span.GetDatestamps(now, SELECTION_DAYS)
+	today := now.Format(time.DateOnly)
+
 	return model{
-		data:      sp,
-		day:       0,
-		state:     launchState,
-		table:     t,
-		paginator: p,
+		data:         sp,
+		day:          0,
+		state:        launchState,
+		table:        t,
+		paginator:    p,
+		dates:        dates,
+		today:        today,
+		selectedDate: sd,
 	}
 }
 

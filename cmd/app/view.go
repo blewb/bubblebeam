@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 const (
 	arrowLeft  = '‹'
@@ -31,7 +35,28 @@ func (m model) ViewLoading() string {
 }
 
 func (m model) ViewSelectDate() string {
-	return "Select Date"
+
+	s := "\n"
+
+	week := make([]string, 0, 7)
+
+	for d, date := range m.dates {
+
+		if d == m.selectedDate {
+			week = append(week, selectedCardStyle.Render(date.Friendly)+" ")
+		} else {
+			week = append(week, cardStyle.Render(date.Friendly)+" ")
+		}
+
+		if len(week) == 7 {
+			s += lipgloss.JoinHorizontal(lipgloss.Top, week...) + "\n"
+			week = week[:0]
+		}
+
+	}
+
+	return s
+
 }
 
 func (m model) ViewListEntries() string {

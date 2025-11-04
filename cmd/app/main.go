@@ -10,6 +10,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	SELECTION_DAYS = 21
+)
+
 //go:embed title.txt
 var appTitle string
 var flagSample, flagState int
