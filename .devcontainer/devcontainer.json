@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	"postCreateCommand": "git clone https://github.com/blewb/bubblebeam.git",
-	// "workspaceFolder": "",
+	"postCreateCommand": "git clone https://github.com/blewb/bubblebeam.git /root/project",
+	"workspaceFolder": "/root/project",
 	"remoteUser": "root"
 }
