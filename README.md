@@ -1,13 +1,6 @@
- ____        _     _     _      _                          
-| __ ) _   _| |__ | |__ | | ___| |__   ___  __ _ _ __ ___  
-|  _ \| | | | '_ \| '_ \| |/ _ \ '_ \ / _ \/ _` | '_ ` _ \ 
-| |_) | |_| | |_) | |_) | |  __/ |_) |  __/ (_| | | | | | |
-|____/ \__,_|_.__/|_.__/|_|\___|_.__/ \___|\__,_|_| |_| |_|
-
 ## BubbleBeam
 
 Built with BubbleTea
 
 Now with fancy ASCII Title curtosy of:
 https://www.asciiart.eu/text-to-ascii-art
-

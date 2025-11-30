@@ -43,22 +43,22 @@ func (m *model) UpdateSelectDate(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
-		case "up":
+		case "left":
 			if m.selectedDate-7 >= 0 {
 				m.selectedDate -= 7
 			}
 
-		case "down":
+		case "right":
 			if m.selectedDate+7 < len(m.dates) {
 				m.selectedDate += 7
 			}
 
-		case "left":
+		case "up":
 			if m.selectedDate > 0 {
 				m.selectedDate--
 			}
 
-		case "right":
+		case "down":
 			if m.selectedDate < len(m.dates)-1 {
 				m.selectedDate++
 			}

@@ -5,8 +5,9 @@ import (
 )
 
 type Datestamp struct {
-	Formal   string
-	Friendly string
+	Formal   string // Date as YYYY-MM-DD for technical/API use
+	Friendly string // Date as Month Day, for reading
+	Weekday  time.Weekday
 }
 
 // Stamp Range and Stamp Date (Index)
@@ -29,6 +30,7 @@ func GetDatestamps(day time.Time, days int) (sr []Datestamp, sd int) {
 		sr[i] = Datestamp{
 			Formal:   day.Format(time.DateOnly),
 			Friendly: day.Format("Jan 2"),
+			Weekday:  day.Weekday(),
 		}
 		if sr[i].Formal == today {
 			sd = i

@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/charmbracelet/lipgloss"
+	"strings"
 )
 
 const (
 	arrowLeft  = '‹'
 	arrowRight = '›'
+
+	weekdaySize = 10 // Enough space for longest day (Wed) plus one space
 )
+
+var weekdayPadding string = strings.Repeat(" ", weekdaySize)
 
 func (m model) View() string {
 
@@ -38,21 +41,28 @@ func (m model) ViewSelectDate() string {
 
 	s := "\n"
 
-	week := make([]string, 0, 7)
+	row := m.selectedDate - 3
 
-	for d, date := range m.dates {
-
-		if d == m.selectedDate {
-			week = append(week, selectedCardStyle.Render(date.Friendly)+" ")
+	for ; row < m.selectedDate; row++ {
+		if row >= 0 {
+			s += fmt.Sprintf("%s   %-10s %s\n", weekdayPadding, m.dates[row].Weekday.String(), m.dates[row].Friendly)
 		} else {
-			week = append(week, cardStyle.Render(date.Friendly)+" ")
+			s += fmt.Sprintf("%s   ---\n", weekdayPadding)
 		}
+	}
 
-		if len(week) == 7 {
-			s += lipgloss.JoinHorizontal(lipgloss.Top, week...) + "\n"
-			week = week[:0]
+	for d := range m.data.Days {
+		s += fmt.Sprintf("%-10s | %-10s %s\n", m.data.Days[d].Weekday.String(), m.dates[row].Weekday.String(), m.dates[row].Friendly)
+		row++
+	}
+
+	for t := 0; t < 3; t++ {
+		if row < len(m.dates) {
+			s += fmt.Sprintf("%s   %-10s %s\n", weekdayPadding, m.dates[row].Weekday.String(), m.dates[row].Friendly)
+		} else {
+			s += fmt.Sprintf("%s   ---\n", weekdayPadding)
 		}
-
+		row++
 	}
 
 	return s

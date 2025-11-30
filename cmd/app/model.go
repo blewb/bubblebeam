@@ -15,13 +15,6 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
-var cardStyle = baseStyle.
-	Padding(2).
-	Width(10)
-
-var selectedCardStyle = cardStyle.
-	Background(lipgloss.Color("#00aaff"))
-
 type modelState int
 
 const (
