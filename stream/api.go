@@ -2,12 +2,8 @@ package stream
 
 import (
 	"bytes"
-	"crypto/tls"
-	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 )
 
 type API struct {
@@ -16,21 +12,27 @@ type API struct {
 }
 
 func NewAPI(url, token string) *API {
-	tr := &http.Transport{
-		// This empty map trick prevents the package from
-		// initializing the HTTP/2 protocol upgrade
-		TLSNextProto:       make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
-		DisableCompression: true,
-	}
-	client := &http.Client{Transport: tr}
 	return &API{
 		url:    url,
 		token:  token,
-		client: client,
+		client: &http.Client{},
 	}
 }
 
-func (a *API) query(requestType, path string, value ...any) ([]byte, error) {
+func (a *API) get(path string) ([]byte, error) {
+	return a.query(http.MethodGet, path, nil)
+}
+
+func (a *API) post(path string, content []byte) ([]byte, error) {
+	return a.query(http.MethodPost, path, content)
+}
+
+// Is it that easy...?
+func (a *API) put(path string, content []byte) ([]byte, error) {
+	return a.query(http.MethodPut, path, content)
+}
+
+func (a *API) query(requestType, path string, content []byte) ([]byte, error) {
 
 	var (
 		req *http.Request
@@ -39,12 +41,8 @@ func (a *API) query(requestType, path string, value ...any) ([]byte, error) {
 
 	reqUrl := a.url + path
 
-	if len(value) > 0 {
-		js, jerr := json.Marshal(value[0])
-		if jerr != nil {
-			return nil, jerr
-		}
-		reqBody := bytes.NewReader(js)
+	if len(content) > 0 {
+		reqBody := bytes.NewReader(content)
 		req, err = http.NewRequest(requestType, reqUrl, reqBody)
 	} else {
 		req, err = http.NewRequest(requestType, reqUrl, nil)
@@ -55,25 +53,13 @@ func (a *API) query(requestType, path string, value ...any) ([]byte, error) {
 	}
 
 	req.Header.Set("Authorization", "Bearer "+a.token)
-	req.Header.Set("Content-type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "curl/7.79.1")
-
-	dump, _ := httputil.DumpRequestOut(req, true)
-	fmt.Println("")
-	fmt.Printf("%s", dump)
-	fmt.Println("")
 
 	resp, err := a.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	dump, _ = httputil.DumpResponse(resp, true)
-	fmt.Println("")
-	fmt.Printf("%s", dump)
-	fmt.Println("")
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

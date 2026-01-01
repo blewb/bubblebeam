@@ -24,6 +24,6 @@ func main() {
 
 	api := stream.NewAPI(apiURL, apiToken)
 
-	api.GetBranches()
+	api.FindJobs()
 
 }

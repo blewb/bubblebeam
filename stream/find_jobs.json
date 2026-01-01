@@ -1,0 +1,24 @@
+{
+  "conditionMatchType": 1,
+  "filterGroups": [
+    {
+      "conditionMatchTypeId": 2,
+      "filterGroupTypeId": 3,
+      "filters": [
+        {
+          "valueMatchTypeId": "1",
+          "value": 1
+        },
+        {
+          "valueMatchTypeId": "1",
+          "value": 5
+        }
+      ]
+    }
+  ],
+  "wildcardSearch": "",
+  "sortField": 57,
+  "sortAscending": true,
+  "maxResults": 10,
+  "offset": 0
+}
