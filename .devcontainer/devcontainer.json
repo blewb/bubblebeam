@@ -3,7 +3,9 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	// "postCreateCommand": "mkdir -p /root/project && chown -R root:root /root/project && git clone https://github.com/blewb/bubblebeam.git /root/project",
-	// "workspaceFolder": "/root/project",
-	"remoteUser": "root"
+	"postCreateCommand": "ip link set dev eth0 mtu 1500 || ip link set dev $(ip route show default | awk '/default/ {print $5}') mtu 1500",
+	"remoteUser": "root",
+	"runArgs": [
+        "--cap-add=NET_ADMIN"
+    ]
 }
