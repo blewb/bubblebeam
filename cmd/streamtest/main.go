@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/blewb/bubblebeam/stream"
 	"github.com/joho/godotenv"
@@ -19,11 +20,16 @@ func main() {
 	apiToken := os.Getenv("API_TOKEN")
 
 	if apiURL == "" || apiToken == "" {
-		log.Fatal("Missing required API URL or token")
+		log.Fatal("missing required API URL or token")
 	}
 
-	api := stream.NewAPI(apiURL, apiToken)
+	apiUser := os.Getenv("USER_ID")
+	userid, err := strconv.ParseInt(apiUser, 10, 64)
+	if err != nil {
+		log.Fatal("invalid user ID")
+	}
 
-	api.FindJobs()
+	api := stream.NewAPI(apiURL, apiToken, userid)
+	api.LoadJobs()
 
 }

@@ -6,16 +6,33 @@ import (
 	"net/http"
 )
 
+type APIState int
+
+const (
+	StateIdle APIState = iota
+	StateFetching
+	StateProcessing
+	StateUpdating
+)
+
 type API struct {
 	url, token string
+	user       int64
 	client     *http.Client
+	status     APIState
+	jobs       []Job
+	jobItems   map[int64][]JobItem
 }
 
-func NewAPI(url, token string) *API {
+func NewAPI(url, token string, user int64) *API {
 	return &API{
-		url:    url,
-		token:  token,
-		client: &http.Client{},
+		url:      url,
+		token:    token,
+		user:     user,
+		client:   &http.Client{},
+		status:   StateIdle,
+		jobs:     make([]Job, 0),
+		jobItems: make(map[int64][]JobItem),
 	}
 }
 
