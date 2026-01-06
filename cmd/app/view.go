@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 const (
@@ -12,24 +14,52 @@ const (
 	weekdaySize = 10 // Enough space for longest day (Wed) plus one space
 )
 
-var weekdayPadding string = strings.Repeat(" ", weekdaySize)
+var (
+	bubble1 = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00ccff"))
+	bubble2 = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00bbff"))
+	bubble3 = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00aaff"))
+
+	headerLeft   = lipgloss.NewStyle().AlignHorizontal(lipgloss.Left)
+	headerCentre = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
+	headerRight  = lipgloss.NewStyle().AlignHorizontal(lipgloss.Right)
+)
+
+var (
+	weekdayPadding string = strings.Repeat(" ", weekdaySize)
+	headerTitle    string = bubble1.Render("B") + bubble2.Render("U") + bubble3.Render("B") + bubble1.Render("B") + bubble2.Render("L") + bubble3.Render("E") + bubble1.Render("B") + bubble2.Render("E") + bubble3.Render("A") + bubble1.Render("M")
+)
+
+func Header(width int, centre, right string) string {
+
+	hWidth := width / 3
+
+	headerLeft = headerLeft.Width(hWidth)
+	headerCentre = headerCentre.Width(hWidth)
+	headerRight = headerRight.Width(width - (2 * hWidth))
+
+	return lipgloss.JoinHorizontal(
+		lipgloss.Bottom,
+		headerLeft.Render(headerTitle),
+		headerCentre.Render(centre),
+		headerRight.Render(right+" "), // Trailing space because it looks nicer
+	)
+
+}
 
 func (m model) View() string {
 
-	s := appTitle + "\n\n"
-
 	switch m.state {
 	case StateSelectDate:
-		return s + m.ViewSelectDate()
+		return m.ViewSelectDate()
 	case StateListEntries:
-		return s + m.ViewListEntries()
+		return m.ViewListEntries()
 	case StateSelectJob:
-		return s + m.ViewSelectJob()
+		return m.ViewSelectJob()
 	case StateConfirm:
-		return s + m.ViewConfirm()
+		return m.ViewConfirm()
 	}
 
-	return s + m.ViewLoading()
+	return m.ViewLoading()
 
 }
 
@@ -71,18 +101,14 @@ func (m model) ViewSelectDate() string {
 
 func (m model) ViewListEntries() string {
 
-	n := len(m.data.Days)
-	singleDay := n == 1
-
-	s := fmt.Sprintf("%c %s %c\n", arrowLeft, m.data.Days[m.day].Weekday.String(), arrowRight)
-
-	if !singleDay {
-		s += m.paginator.View()
-		s += "\n"
+	var centre string
+	if len(m.data.Days) > 1 {
+		centre = fmt.Sprintf("%c %s %c", arrowLeft, m.paginator.View(), arrowRight)
 	}
 
-	s += "\n"
+	right := fmt.Sprintf("%s", m.data.Days[m.day].Weekday.String())
 
+	s := Header(m.width, centre, right) + "\n"
 	s += baseStyle.Render(m.table.View())
 
 	return s

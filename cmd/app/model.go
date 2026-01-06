@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/blewb/bubblebeam/span"
+	"github.com/blewb/bubblebeam/stream"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,6 +28,7 @@ const (
 
 type model struct {
 	data         span.Span
+	api          *stream.API
 	day          int
 	state        modelState
 	table        table.Model
@@ -34,18 +36,27 @@ type model struct {
 	dates        []span.Datestamp
 	today        string
 	selectedDate int
+	width        int
 }
 
-func initialModel(sp span.Span, launchState modelState) model {
+// Sum of the fixed width columns below, plus 2 per border between/around
+const tableFixedSpace = 43
 
-	columns := []table.Column{
+func getColumns(w1, w2 int) []table.Column {
+	return []table.Column{
 		{Title: "#", Width: 3},
 		{Title: "Start", Width: 6},
 		{Title: "End", Width: 6},
 		{Title: "Time", Width: 6},
-		{Title: "Description", Width: 64},
-		{Title: "Tag", Width: 16},
+		{Title: "Description", Width: w1},
+		{Title: "Tag", Width: w2},
+		{Title: "Status", Width: 6},
 	}
+}
+
+func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
+
+	columns := getColumns(30, 10)
 
 	n := len(sp.Days[0].Entries)
 	rows := make([]table.Row, 0, n)
@@ -58,6 +69,7 @@ func initialModel(sp span.Span, launchState modelState) model {
 			entry.DurationString(),
 			entry.Description,
 			entry.Tag,
+			"--",
 		})
 	}
 
@@ -65,7 +77,7 @@ func initialModel(sp span.Span, launchState modelState) model {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
-		table.WithHeight(n+1),
+		table.WithHeight(10),
 	)
 
 	s := table.DefaultStyles()
@@ -93,6 +105,7 @@ func initialModel(sp span.Span, launchState modelState) model {
 
 	return model{
 		data:         sp,
+		api:          api,
 		day:          0,
 		state:        launchState,
 		table:        t,

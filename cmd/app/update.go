@@ -12,12 +12,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+
+		rem := msg.Width - tableFixedSpace
+		larger := int(float64(rem) * 0.75)
+		smaller := rem - larger
+
+		cols := getColumns(larger, smaller)
+		m.table.SetColumns(cols)
+		m.table.SetHeight(msg.Height / 2)
+		m.width = msg.Width
 
 	case tea.KeyMsg:
 
 		switch msg.String() {
 
-		case "ctrl+c", "q":
+		case "ctrl+c", "esc":
 			return m, tea.Quit
 
 		}
@@ -121,11 +131,11 @@ func (m *model) UpdateTable() {
 			entry.DurationString(),
 			entry.Description,
 			entry.Tag,
+			"--",
 		})
 	}
 
 	m.table.SetRows(rows)
-	m.table.SetHeight(n + 2)
 	m.table.SetCursor(0)
 
 }
