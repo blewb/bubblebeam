@@ -20,7 +20,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		cols := getColumns(larger, smaller)
 		m.table.SetColumns(cols)
-		m.table.SetHeight(msg.Height / 2)
+		m.table.SetHeight(max(7, (msg.Height/2)-3))
 		m.width = msg.Width
 
 	case tea.KeyMsg:
@@ -91,20 +91,24 @@ func (m *model) UpdateListEntries(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		case "left":
-			if m.day > 0 {
-				m.day--
-			} else {
-				m.day = len(m.data.Days) - 1
+			if len(m.data.Days) > 1 {
+				if m.day > 0 {
+					m.day--
+				} else {
+					m.day = len(m.data.Days) - 1
+				}
+				m.UpdateTable()
 			}
-			m.UpdateTable()
 
 		case "right":
-			if m.day < len(m.data.Days)-1 {
-				m.day++
-			} else {
-				m.day = 0
+			if len(m.data.Days) > 1 {
+				if m.day < len(m.data.Days)-1 {
+					m.day++
+				} else {
+					m.day = 0
+				}
+				m.UpdateTable()
 			}
-			m.UpdateTable()
 
 		}
 	}

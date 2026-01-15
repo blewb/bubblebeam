@@ -58,7 +58,7 @@ func main() {
 	sp.Read(flagSample)
 
 	api := stream.NewAPI(apiURL, apiToken, userid)
-	// api.LoadJobs()
+	api.LoadJobs()
 
 	p := tea.NewProgram(initialModel(sp, api, modelState(flagState)), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {

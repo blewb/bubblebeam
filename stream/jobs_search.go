@@ -3,6 +3,7 @@ package stream
 import (
 	_ "embed"
 	"encoding/json"
+	"os"
 )
 
 //go:embed jobs_search.json
@@ -12,7 +13,18 @@ func (a *API) LoadJobs() error {
 
 	a.status = StateFetching
 
+	/*
+	 // Temporarily saved locally for speed
 	found, err := a.post("/search?search_view=7&include_statistics=false", jobsSearchJSON)
+	if err != nil {
+		a.status = StateIdle
+		return err
+	}
+
+	os.WriteFile("temp/jobs.json", found, 0644)
+	*/
+
+	found, err := os.ReadFile("temp/jobs.json")
 	if err != nil {
 		a.status = StateIdle
 		return err
