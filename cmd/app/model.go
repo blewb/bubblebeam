@@ -35,21 +35,7 @@ type model struct {
 	width        int
 	searchInput  textinput.Model
 	searchJobs   []stream.Job
-}
-
-// Sum of the fixed width columns below, plus 2 per border between/around
-const tableFixedSpace = 43
-
-func getColumns(w1, w2 int) []table.Column {
-	return []table.Column{
-		{Title: "#", Width: 3},
-		{Title: "Start", Width: 6},
-		{Title: "End", Width: 6},
-		{Title: "Time", Width: 6},
-		{Title: "Description", Width: w1},
-		{Title: "Tag", Width: w2},
-		{Title: "Status", Width: 6},
-	}
+	searchTable  table.Model
 }
 
 func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
@@ -73,6 +59,8 @@ func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 
 	rows := m.GetEntryRows()
 	m.table = BuildTable(rows)
+
+	m.searchTable = BuildSearchTable()
 
 	return m
 
@@ -102,4 +90,28 @@ func (m model) GetEntryRows() []table.Row {
 
 	return rows
 
+}
+
+// Sum of the fixed width columns below, plus 2 per border between/around
+const tableFixedSpace = 43
+
+func getColumns(w1, w2 int) []table.Column {
+	return []table.Column{
+		{Title: "#", Width: 3},
+		{Title: "Start", Width: 6},
+		{Title: "End", Width: 6},
+		{Title: "Time", Width: 6},
+		{Title: "Description", Width: w1},
+		{Title: "Tag", Width: w2},
+		{Title: "Status", Width: 6},
+	}
+}
+
+func getSearchColumns() []table.Column {
+	return []table.Column{
+		{Title: "#", Width: 3},
+		{Title: "Number", Width: 6},
+		{Title: "Name", Width: 24},
+		{Title: "Client", Width: 24},
+	}
 }

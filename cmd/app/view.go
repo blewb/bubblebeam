@@ -116,9 +116,7 @@ func (m model) ViewSelectJob() string {
 	s += "\n"
 
 	if len(m.searchJobs) > 0 {
-		for _, sj := range m.searchJobs {
-			s += fmt.Sprintf("[%s] %s | %s\n", sj.Number, sj.Name, sj.Company)
-		}
+		s += baseStyle.Render(m.searchTable.View()) + "\n"
 	}
 
 	return s

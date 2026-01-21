@@ -145,6 +145,7 @@ func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.SearchJobs()
 	}
 
+	m.searchTable, cmd = m.searchTable.Update(msg)
 	return m, cmd
 
 }

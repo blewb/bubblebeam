@@ -33,6 +33,25 @@ func BuildTable(rows []table.Row) table.Model {
 
 }
 
+// TODO: Make this a list instead
+func BuildSearchTable() table.Model {
+
+	t := table.New(
+		table.WithColumns(getSearchColumns()),
+		table.WithFocused(true),
+		table.WithHeight(7),
+	)
+
+	s := table.DefaultStyles()
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("#00bbff")).
+		Bold(true)
+	t.SetStyles(s)
+
+	return t
+
+}
+
 func BuildPaginator(sp span.Span) paginator.Model {
 
 	p := paginator.New()
