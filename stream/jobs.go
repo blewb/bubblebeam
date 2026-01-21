@@ -15,6 +15,7 @@ type Job struct {
 	Number  string
 	Name    string
 	Company string
+	Search  string
 	ID      int64
 }
 
@@ -37,4 +38,8 @@ type JobItem struct {
 	User           int64 // This is a unique ID representing the bridge between an actual user and a job item
 	PlannedMinutes int
 	LoggedMinutes  int
+}
+
+func (a API) GetJobs() []Job {
+	return a.jobs
 }

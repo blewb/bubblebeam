@@ -116,7 +116,29 @@ func (m model) ViewListEntries() string {
 }
 
 func (m model) ViewSelectJob() string {
-	return "Select Job"
+
+	var centre string
+	if len(m.data.Days) > 1 {
+		centre = fmt.Sprintf("%c %s %c", arrowLeft, m.paginator.View(), arrowRight)
+	}
+
+	right := fmt.Sprintf("%s", m.data.Days[m.day].Weekday.String())
+
+	s := Header(m.width, centre, right) + "\n"
+	s += baseStyle.Render(m.table.View())
+
+	s += "\n"
+	s += m.searchInput.View()
+	s += "\n"
+
+	if len(m.searchJobs) > 0 {
+		for _, sj := range m.searchJobs {
+			s += fmt.Sprintf("[%s] %s | %s\n", sj.Number, sj.Name, sj.Company)
+		}
+	}
+
+	return s
+
 }
 
 func (m model) ViewConfirm() string {

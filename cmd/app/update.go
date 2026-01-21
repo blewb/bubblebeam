@@ -27,7 +27,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
-		case "ctrl+c", "esc":
+		case "ctrl+c":
 			return m, tea.Quit
 
 		}
@@ -38,6 +38,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.UpdateSelectDate(msg)
 	case StateListEntries:
 		return m.UpdateListEntries(msg)
+	case StateSelectJob:
+		return m.UpdateSelectJob(msg)
 	}
 
 	return m, cmd
@@ -110,11 +112,41 @@ func (m *model) UpdateListEntries(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.UpdateTable()
 			}
 
+		case "space", "enter":
+			m.state = StateSelectJob
+			m.searchInput.Focus()
 		}
 	}
 
 	m.paginator.Page = m.day
 	m.table, cmd = m.table.Update(msg)
+
+	return m, cmd
+
+}
+
+func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+
+		switch msg.String() {
+
+		case "esc":
+			m.state = StateListEntries
+			m.searchInput.Blur()
+		}
+	}
+
+	before := m.searchInput.Value()
+	m.searchInput, cmd = m.searchInput.Update(msg)
+
+	if before != m.searchInput.Value() {
+		m.SearchJobs()
+	}
 
 	return m, cmd
 

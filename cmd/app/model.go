@@ -8,6 +8,7 @@ import (
 	"github.com/blewb/bubblebeam/stream"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -37,6 +38,8 @@ type model struct {
 	today        string
 	selectedDate int
 	width        int
+	searchInput  textinput.Model
+	searchJobs   []stream.Job
 }
 
 // Sum of the fixed width columns below, plus 2 per border between/around
@@ -103,6 +106,11 @@ func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 	dates, sd := span.GetDatestamps(now, SELECTION_DAYS)
 	today := now.Format(time.DateOnly)
 
+	ti := textinput.New()
+	ti.Placeholder = "Job Number/Name/Company"
+	ti.CharLimit = 32
+	ti.Width = 32
+
 	return model{
 		data:         sp,
 		api:          api,
@@ -113,6 +121,8 @@ func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 		dates:        dates,
 		today:        today,
 		selectedDate: sd,
+		searchInput:  ti,
+		searchJobs:   make([]stream.Job, 0),
 	}
 }
 
