@@ -10,12 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
-
-var baseStyle = lipgloss.NewStyle().
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(lipgloss.Color("240"))
 
 type modelState int
 
@@ -59,12 +54,41 @@ func getColumns(w1, w2 int) []table.Column {
 
 func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 
-	columns := getColumns(30, 10)
+	now := time.Now()
+	dates, sd := span.GetDatestamps(now, SELECTION_DAYS)
+	today := now.Format(time.DateOnly)
 
-	n := len(sp.Days[0].Entries)
+	m := model{
+		data:         sp,
+		api:          api,
+		day:          0,
+		state:        launchState,
+		paginator:    BuildPaginator(sp),
+		dates:        dates,
+		today:        today,
+		selectedDate: sd,
+		searchInput:  BuildTextinput("Job Number/Name/Company", 32),
+		searchJobs:   make([]stream.Job, 0),
+	}
+
+	rows := m.GetEntryRows()
+	m.table = BuildTable(rows)
+
+	return m
+
+}
+
+func (m model) Init() tea.Cmd {
+	// Just return `nil`, which means "no I/O right now, please."
+	return nil
+}
+
+func (m model) GetEntryRows() []table.Row {
+
+	n := len(m.data.Days[m.day].Entries)
 	rows := make([]table.Row, 0, n)
 
-	for e, entry := range sp.Days[0].Entries {
+	for e, entry := range m.data.Days[m.day].Entries {
 		rows = append(rows, []string{
 			fmt.Sprintf("%d", e+1),
 			entry.Start.Render(),
@@ -76,57 +100,6 @@ func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 		})
 	}
 
-	t := table.New(
-		table.WithColumns(columns),
-		table.WithRows(rows),
-		table.WithFocused(true),
-		table.WithHeight(10),
-	)
+	return rows
 
-	s := table.DefaultStyles()
-	s.Header = s.Header.
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
-		BorderBottom(true).
-		Bold(false)
-	s.Selected = s.Selected.
-		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("#00aaff")).
-		Bold(false)
-	t.SetStyles(s)
-
-	p := paginator.New()
-	p.Type = paginator.Dots
-	p.PerPage = 1
-	p.ActiveDot = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "252"}).Render("•")
-	p.InactiveDot = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "238"}).Render("•")
-	p.SetTotalPages(len(sp.Days))
-
-	now := time.Now()
-	dates, sd := span.GetDatestamps(now, SELECTION_DAYS)
-	today := now.Format(time.DateOnly)
-
-	ti := textinput.New()
-	ti.Placeholder = "Job Number/Name/Company"
-	ti.CharLimit = 32
-	ti.Width = 32
-
-	return model{
-		data:         sp,
-		api:          api,
-		day:          0,
-		state:        launchState,
-		table:        t,
-		paginator:    p,
-		dates:        dates,
-		today:        today,
-		selectedDate: sd,
-		searchInput:  ti,
-		searchJobs:   make([]stream.Job, 0),
-	}
-}
-
-func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
-	return nil
 }

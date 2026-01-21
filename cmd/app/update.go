@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -27,7 +24,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
-		case "ctrl+c":
+		case "ctrl+c", "esc":
 			return m, tea.Quit
 
 		}
@@ -135,7 +132,7 @@ func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
-		case "esc":
+		case "ctrl+left", "ctrl+up":
 			m.state = StateListEntries
 			m.searchInput.Blur()
 		}
@@ -152,26 +149,9 @@ func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 }
 
-// Doesn't work just yet
-// Of course it doesn't if you pass a copy, dummy...
 func (m *model) UpdateTable() {
 
-	n := len(m.data.Days[m.day].Entries)
-	rows := make([]table.Row, 0, n)
-
-	for e, entry := range m.data.Days[m.day].Entries {
-		rows = append(rows, []string{
-			fmt.Sprintf("%d", e+1),
-			entry.Start.Render(),
-			entry.End.Render(),
-			entry.DurationString(),
-			entry.Description,
-			entry.Tag,
-			"--",
-		})
-	}
-
-	m.table.SetRows(rows)
+	m.table.SetRows(m.GetEntryRows())
 	m.table.SetCursor(0)
 
 }
