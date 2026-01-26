@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/blewb/bubblebeam/span"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -37,6 +41,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.UpdateListEntries(msg)
 	case StateSelectJob:
 		return m.UpdateSelectJob(msg)
+	case StateSelectItem:
+		return m.UpdateSelectItem(msg)
 	}
 
 	return m, cmd
@@ -135,6 +141,30 @@ func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+left", "ctrl+up":
 			m.state = StateListEntries
 			m.searchInput.Blur()
+
+		case "space", "enter":
+			m.state = StateSelectItem
+			m.searchInput.Blur()
+
+			job := m.searchJobs[m.searchTable.Cursor()]
+			var err error
+			m.itemList, err = m.api.GetJobItems(job.ID)
+			if err != nil {
+				// oh crap
+			}
+			rows := make([]table.Row, 0, len(m.itemList))
+			for i, itm := range m.itemList {
+				rows = append(rows, []string{
+					fmt.Sprintf("%d", i+1),
+					itm.Name,
+					itm.Description,
+					fmt.Sprintf("%s / %s",
+						span.DurationAsString(itm.LoggedMinutes),
+						span.DurationAsString(itm.PlannedMinutes),
+					),
+				})
+			}
+			m.itemTable.SetRows(rows)
 		}
 	}
 
@@ -150,9 +180,32 @@ func (m *model) UpdateSelectJob(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 }
 
+func (m *model) UpdateSelectItem(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+
+		switch msg.String() {
+
+		case "ctrl+left", "ctrl+up":
+			m.state = StateSelectJob
+			m.searchInput.Focus()
+
+		}
+	}
+
+	m.itemTable, cmd = m.itemTable.Update(msg)
+	return m, cmd
+
+}
+
 func (m *model) UpdateTable() {
 
 	m.table.SetRows(m.GetEntryRows())
 	m.table.SetCursor(0)
+	m.table.MoveUp(100) // Hacky
 
 }

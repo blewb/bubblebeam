@@ -16,7 +16,7 @@ func (a *API) LoadJobs() error {
 	a.status = StateFetching
 
 	/*
-		 // Temporarily saved locally for speed
+		// Temporarily saved locally for speed
 		found, err := a.post("/search?search_view=7&include_statistics=false", jobsSearchJSON)
 		if err != nil {
 			a.status = StateIdle

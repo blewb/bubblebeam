@@ -32,4 +32,6 @@ func main() {
 	api := stream.NewAPI(apiURL, apiToken, userid)
 	api.LoadJobs()
 
+	// res, err := api.GetJobItems(12, 34)
+
 }

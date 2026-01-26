@@ -19,6 +19,7 @@ const (
 	StateSelectDate
 	StateListEntries
 	StateSelectJob
+	StateSelectItem
 	StateConfirm
 )
 
@@ -36,6 +37,8 @@ type model struct {
 	searchInput  textinput.Model
 	searchJobs   []stream.Job
 	searchTable  table.Model
+	itemList     []stream.JobItem
+	itemTable    table.Model
 }
 
 func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
@@ -61,6 +64,8 @@ func initialModel(sp span.Span, api *stream.API, launchState modelState) model {
 	m.table = BuildTable(rows)
 
 	m.searchTable = BuildSearchTable()
+
+	m.itemTable = BuildItemTable()
 
 	return m
 
@@ -113,5 +118,14 @@ func getSearchColumns() []table.Column {
 		{Title: "Number", Width: 6},
 		{Title: "Name", Width: 24},
 		{Title: "Client", Width: 24},
+	}
+}
+
+func getItemColumns() []table.Column {
+	return []table.Column{
+		{Title: "#", Width: 3},
+		{Title: "Name", Width: 32},
+		{Title: "Description", Width: 32},
+		{Title: "Time", Width: 12},
 	}
 }

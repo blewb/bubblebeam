@@ -40,6 +40,11 @@ type JobItem struct {
 	LoggedMinutes  int
 }
 
+type ParsedJobItemUser struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"userId"`
+}
+
 func (a API) GetJobs() []Job {
 	return a.jobs
 }

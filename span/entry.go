@@ -87,7 +87,11 @@ func (t Timestamp) GetSlot() int {
 }
 
 func (e Entry) DurationString() string {
-	f := float32(e.Duration) / 60.0
+	return DurationAsString(e.Duration)
+}
+
+func DurationAsString(d int) string {
+	f := float32(d) / 60.0
 	return fmt.Sprintf("%.3gh", f)
 }
 

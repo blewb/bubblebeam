@@ -17,8 +17,8 @@
     }
   ],
   "wildcardSearch": "",
-  "sortField": 57,
+  "sortField": 1,
   "sortAscending": true,
-  "maxResults": 10,
+  "maxResults": 1000,
   "offset": 0
 }

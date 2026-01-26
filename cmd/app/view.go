@@ -39,6 +39,8 @@ func (m model) View() string {
 		return m.ViewListEntries()
 	case StateSelectJob:
 		return m.ViewSelectJob()
+	case StateSelectItem:
+		return m.ViewSelectItem()
 	case StateConfirm:
 		return m.ViewConfirm()
 	}
@@ -117,6 +119,32 @@ func (m model) ViewSelectJob() string {
 
 	if len(m.searchJobs) > 0 {
 		s += baseStyle.Render(m.searchTable.View()) + "\n"
+	}
+
+	return s
+
+}
+
+func (m model) ViewSelectItem() string {
+
+	var centre string
+	if len(m.data.Days) > 1 {
+		centre = fmt.Sprintf("%c %s %c", arrowLeft, m.paginator.View(), arrowRight)
+	}
+
+	right := fmt.Sprintf("%s", m.data.Days[m.day].Weekday.String())
+
+	s := Header(m.width, centre, right) + "\n"
+	s += baseStyle.Render(m.table.View())
+
+	job := m.searchJobs[m.searchTable.Cursor()]
+
+	s += "\n"
+	s += fmt.Sprintf("[%s] %s", job.Number, job.Name)
+	s += "\n"
+
+	if len(m.itemList) > 0 {
+		s += baseStyle.Render(m.itemTable.View()) + "\n"
 	}
 
 	return s
