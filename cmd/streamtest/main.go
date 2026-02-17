@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"fmt"
 
 	"github.com/blewb/bubblebeam/stream"
 	"github.com/joho/godotenv"
@@ -30,7 +31,9 @@ func main() {
 	}
 
 	api := stream.NewAPI(apiURL, apiToken, userid)
-	api.LoadJobs()
+	err = api.LoadJobs()
+
+	fmt.Println(err)
 
 	// res, err := api.GetJobItems(12, 34)
 

@@ -23,7 +23,8 @@ func (a *API) LoadJobs() error {
 			return err
 		}
 
-		os.WriteFile("temp/jobs.json", found, 0644)
+		err = os.WriteFile("temp/jobs.json", found, 0644)
+		return err
 	*/
 
 	found, err := os.ReadFile("temp/jobs.json")

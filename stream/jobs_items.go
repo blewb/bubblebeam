@@ -26,7 +26,6 @@ func (a *API) GetJobItems(id int64) ([]JobItem, error) {
 
 		jius, err := a.GetJobItemUsers(rji.ID)
 		if err != nil {
-			// TODO: Handle the error?!
 			continue
 		}
 
