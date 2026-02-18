@@ -60,6 +60,7 @@ type model struct {
 	itemList    []stream.JobItem
 	itemCursor  int
 	itemLoading bool
+	itemError   string
 	selectedJob stream.Job
 
 	assignments  map[[2]int]Assignment

@@ -23,6 +23,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.itemLoading = false
 			if msg.err == nil {
 				m.itemList = msg.items
+				m.itemError = ""
+			} else {
+				m.itemList = nil
+				m.itemError = msg.err.Error()
 			}
 			m.itemCursor = 0
 		}
@@ -168,6 +172,10 @@ func (m *model) handleEsc() (tea.Model, tea.Cmd) {
 
 func (m *model) updateEntries(msg tea.Msg) (tea.Model, tea.Cmd) {
 
+	if len(m.data.Days) == 0 {
+		return m, nil
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -225,13 +233,13 @@ func (m *model) updateJobs(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "up":
+		case "up", "k":
 			if m.jobCursor > 0 {
 				m.jobCursor--
 			}
 			return m, nil
 
-		case "down":
+		case "down", "j":
 			if m.jobCursor < len(m.searchJobs)-1 {
 				m.jobCursor++
 			}
@@ -266,6 +274,7 @@ func (m *model) selectJob() (tea.Model, tea.Cmd) {
 	m.searchInput.Blur()
 	m.focus = FocusItems
 	m.itemCursor = 0
+	m.itemError = ""
 
 	if cached, ok := m.jobItemCache[job.ID]; ok {
 		m.itemList = cached
@@ -310,6 +319,15 @@ func (m *model) updateItems(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *model) confirmItem() (tea.Model, tea.Cmd) {
 
+	if len(m.data.Days) == 0 {
+		return m, nil
+	}
+
+	day := m.data.Days[m.day]
+	if m.entryCursor >= len(day.Entries) {
+		return m, nil
+	}
+
 	item := m.itemList[m.itemCursor]
 	key := [2]int{m.day, m.entryCursor}
 
@@ -325,7 +343,6 @@ func (m *model) confirmItem() (tea.Model, tea.Cmd) {
 	m.itemList = nil
 	m.selectedJob = stream.Job{}
 
-	day := m.data.Days[m.day]
 	if m.entryCursor < len(day.Entries)-1 {
 		m.entryCursor++
 	}

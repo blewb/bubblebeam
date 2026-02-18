@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/blewb/bubblebeam/span"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 func (m model) View() string {
@@ -85,6 +87,8 @@ func (m model) viewSelectDate() string {
 func (m model) viewMain() string {
 
 	title := renderTitle()
+	dayTabs := m.dayTabs()
+	headerLine := renderHeaderLine(title, dayTabs, m.width)
 
 	helpLine := m.helpText()
 
@@ -96,12 +100,12 @@ func (m model) viewMain() string {
 	panel2W := (m.width * 2) / 3
 	panel3W := m.width - panel2W
 
-	p1BodyH := max(1, panel1H-4)
+	p1BodyH := max(1, panel1H-3)
 	p1Content := m.viewEntries(m.width-2, p1BodyH)
 	p1Icon := m.entriesIcon()
 	p1 := renderPanel("Entries", p1Icon, p1Content, m.width, panel1H, m.focus == FocusEntries)
 
-	p23BodyH := max(1, panel23H-4)
+	p23BodyH := max(1, panel23H-3)
 	p2Content := m.viewJobSearch(panel2W-2, p23BodyH)
 	p2Icon := m.jobSearchIcon()
 	p2 := renderPanel("Search", p2Icon, p2Content, panel2W, panel23H, m.focus == FocusJobs)
@@ -112,7 +116,7 @@ func (m model) viewMain() string {
 
 	bottomRow := lipgloss.JoinHorizontal(lipgloss.Top, p2, p3)
 
-	return title + "\n" + p1 + "\n" + bottomRow + "\n" + helpLine
+	return headerLine + "\n" + p1 + "\n" + bottomRow + "\n" + helpLine
 
 }
 
@@ -146,7 +150,14 @@ func (m model) entriesIcon() string {
 	total := span.DurationAsString(d.Duration)
 
 	if len(m.data.Days) > 1 {
+		if m.day < len(m.dayDates) {
+			return fmt.Sprintf("%s · %s", total, formatDayDate(m.dayDates[m.day]))
+		}
 		return fmt.Sprintf("%s · Day %d/%d", total, m.day+1, len(m.data.Days))
+	}
+
+	if len(m.dayDates) > 0 {
+		return fmt.Sprintf("%s · %s", total, formatDayDate(m.dayDates[0]))
 	}
 
 	return total
@@ -161,25 +172,13 @@ func (m model) viewEntries(w, h int) string {
 
 	var b strings.Builder
 
-	if len(m.data.Days) > 1 {
-		var tabs strings.Builder
-		for i, day := range m.data.Days {
-			name := day.Weekday.String()[:3]
-			if i == m.day {
-				tabs.WriteString(lipgloss.NewStyle().Foreground(colorBlue1).Bold(true).Render(name))
-			} else {
-				tabs.WriteString(dimStyle.Render(name))
-			}
-			if i < len(m.data.Days)-1 {
-				tabs.WriteString(dimStyle.Render(" · "))
-			}
-		}
-		b.WriteString(" ◀ " + tabs.String() + " ▶\n")
-		h--
-	}
-
 	day := m.data.Days[m.day]
 	entries := day.Entries
+
+	tableW := w - 2
+	if tableW < 1 {
+		tableW = 1
+	}
 
 	numW := 3
 	startW := 6
@@ -189,12 +188,12 @@ func (m model) viewEntries(w, h int) string {
 	statusW := 12
 	separators := 6
 	fixed := numW + startW + endW + durW + tagW + statusW + separators
-	descW := w - fixed
+	descW := tableW - fixed
 	if descW < 10 {
 		descW = 10
 	}
 
-	hdr := fmt.Sprintf(" %-*s %-*s %-*s %-*s %-*s %-*s %-*s",
+	hdr := fmt.Sprintf(" %-*s %-*s %-*s %-*s %-*s %-*s %-*s ",
 		numW, "#",
 		startW, "Start",
 		endW, "End",
@@ -224,7 +223,7 @@ func (m model) viewEntries(w, h int) string {
 			tag = tag[:tagW-2] + ".."
 		}
 
-		row := fmt.Sprintf(" %-*d %-*s %-*s %-*s %-*s %-*s %-*s",
+		row := fmt.Sprintf(" %-*d %-*s %-*s %-*s %-*s %-*s %-*s ",
 			numW, i+1,
 			startW, e.Start.Render(),
 			endW, e.End.Render(),
@@ -275,7 +274,7 @@ func (m model) viewJobSearch(w, h int) string {
 
 	var b strings.Builder
 
-	b.WriteString(m.searchInput.View())
+	b.WriteString(padLine(w, m.searchInput.View()))
 	b.WriteString("\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", w)))
 	b.WriteString("\n")
@@ -283,18 +282,23 @@ func (m model) viewJobSearch(w, h int) string {
 
 	if len(m.searchJobs) == 0 {
 		if len(m.searchInput.Value()) >= 2 {
-			b.WriteString(dimStyle.Render("No matches"))
+			b.WriteString(dimStyle.Render(padLine(w, "No matches")))
 		} else {
-			b.WriteString(dimStyle.Render("Type at least 2 characters"))
+			b.WriteString(dimStyle.Render(padLine(w, "Type at least 2 characters")))
 		}
 		return b.String()
+	}
+
+	tableW := w - 2
+	if tableW < 1 {
+		tableW = 1
 	}
 
 	numW := 3
 	numberW := 8
 	separators := 3
 	fixed := numW + numberW + separators
-	remaining := w - fixed
+	remaining := tableW - fixed
 	if remaining < 4 {
 		remaining = 4
 	}
@@ -317,7 +321,7 @@ func (m model) viewJobSearch(w, h int) string {
 			comp = comp[:compW-2] + ".."
 		}
 
-		row := fmt.Sprintf("%-*d %-*s %-*s %-*s",
+		row := fmt.Sprintf(" %-*d %-*s %-*s %-*s ",
 			numW, i+1,
 			numberW, job.Number,
 			nameW, name,
@@ -347,6 +351,9 @@ func (m model) jobItemsIcon() string {
 	if m.itemLoading {
 		return "⟳"
 	}
+	if m.itemError != "" {
+		return "error"
+	}
 	if len(m.itemList) > 0 {
 		return fmt.Sprintf("%d items", len(m.itemList))
 	}
@@ -357,32 +364,39 @@ func (m model) jobItemsIcon() string {
 func (m model) viewJobItems(w, h int) string {
 
 	if m.itemLoading {
-		return dimStyle.Render("Loading job items...")
+		return dimStyle.Render(padLine(w, "Loading job items..."))
+	}
+
+	if m.itemError != "" {
+		msg := "Error: " + m.itemError
+		return dimStyle.Render(padLine(w, msg))
 	}
 
 	if len(m.itemList) == 0 {
 		if m.selectedJob.ID > 0 {
-			return dimStyle.Render("No items available")
+			return dimStyle.Render(padLine(w, "No items available"))
 		}
-		return dimStyle.Render("Select a job first")
+		return dimStyle.Render(padLine(w, "Select a job first"))
 	}
 
 	var b strings.Builder
 
 	jobInfo := fmt.Sprintf("[%s] %s", m.selectedJob.Number, m.selectedJob.Name)
-	if len(jobInfo) > w {
-		jobInfo = jobInfo[:w-2] + ".."
-	}
-	b.WriteString(lipgloss.NewStyle().Foreground(colorBlue2).Render(jobInfo))
+	b.WriteString(lipgloss.NewStyle().Foreground(colorBlue2).Render(padLine(w, jobInfo)))
 	b.WriteString("\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", w)))
 	b.WriteString("\n")
 	h -= 2
 
+	tableW := w - 2
+	if tableW < 1 {
+		tableW = 1
+	}
+
 	numW := 3
 	timeW := 14
 	separators := 2
-	nameW := w - numW - timeW - separators
+	nameW := tableW - numW - timeW - separators
 	if nameW < 5 {
 		nameW = 5
 	}
@@ -403,7 +417,7 @@ func (m model) viewJobItems(w, h int) string {
 			span.DurationAsString(item.PlannedMinutes),
 		)
 
-		row := fmt.Sprintf("%-*d %-*s %-*s",
+		row := fmt.Sprintf(" %-*d %-*s %-*s ",
 			numW, i+1,
 			nameW, name,
 			timeW, timeStr,
@@ -426,6 +440,88 @@ func (m model) viewJobItems(w, h int) string {
 }
 
 // ─── Helpers ────────────────────────────────────────────────
+
+func (m model) dayTabs() string {
+
+	if len(m.data.Days) <= 1 {
+		return ""
+	}
+
+	var tabs strings.Builder
+	for i, day := range m.data.Days {
+		name := day.Weekday.String()[:3]
+		if i == m.day {
+			tabs.WriteString(lipgloss.NewStyle().Foreground(colorBlue1).Bold(true).Render(name))
+		} else {
+			tabs.WriteString(dimStyle.Render(name))
+		}
+		if i < len(m.data.Days)-1 {
+			tabs.WriteString(dimStyle.Render(" · "))
+		}
+	}
+
+	left := dimStyle.Render("◀")
+	right := dimStyle.Render("▶")
+
+	return left + " " + tabs.String() + " " + right
+
+}
+
+func renderHeaderLine(title, right string, width int) string {
+
+	if right == "" {
+		return title
+	}
+
+	gap := width - lipgloss.Width(title) - lipgloss.Width(right)
+	if gap < 1 {
+		gap = 1
+	}
+
+	return title + strings.Repeat(" ", gap) + right
+
+}
+
+func padLine(width int, text string) string {
+
+	if width <= 2 {
+		return text
+	}
+
+	max := width - 2
+	trimmed := ansi.Truncate(text, max, "")
+	return " " + trimmed + strings.Repeat(" ", max-lipgloss.Width(trimmed)) + " "
+
+}
+
+func formatDayDate(date time.Time) string {
+
+	day := date.Day()
+	month := date.Format("Jan")
+	suffix := ordinalSuffix(day)
+
+	return fmt.Sprintf("%d%s %s", day, suffix, month)
+
+}
+
+func ordinalSuffix(day int) string {
+
+	if day%100 >= 11 && day%100 <= 13 {
+		return "th"
+	}
+
+	switch day % 10 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
+	}
+
+}
 
 func visibleRange(cursor, total, viewHeight int) (int, int) {
 

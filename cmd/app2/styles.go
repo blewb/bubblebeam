@@ -56,12 +56,12 @@ func renderPanelHeader(title, icon string, width int) string {
 		Foreground(colorDim).
 		Render(icon)
 
-	gap := width - lipgloss.Width(titleRendered) - lipgloss.Width(iconRendered)
+	gap := width - lipgloss.Width(titleRendered) - lipgloss.Width(iconRendered) - 2
 	if gap < 0 {
 		gap = 0
 	}
 
-	return titleRendered + strings.Repeat(" ", gap) + iconRendered
+	return " " + titleRendered + strings.Repeat(" ", gap) + iconRendered + " "
 
 }
 

@@ -60,6 +60,7 @@ func (sp *Span) Read(useSample int) error {
 
 		if nextday >= 0 && nextday != currday {
 			if len(day.Entries) > 0 {
+				day.Validate()
 				sp.Days = append(sp.Days, day)
 			}
 			currday = nextday
